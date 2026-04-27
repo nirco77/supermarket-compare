@@ -1,0 +1,6 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="12" fill="#1a1a2e"/>
+  <path d="M14 14 L14 38 L32 56 L50 38 L50 14 Z" fill="#FFC423"/>
+  <circle cx="32" cy="18" r="4" fill="#1a1a2e"/>
+  <text x="32" y="42" font-family="Arial" font-weight="bold" font-size="20" fill="#1a1a2e" text-anchor="middle">€</text>
+</svg>
