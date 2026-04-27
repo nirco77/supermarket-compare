@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Supermarket</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🛒 Super Supermarket</h1>
+    <p>Albert Heijn · Jumbo · Dirk — Amsterdam</p>
+  </div>
+  <div class="header-actions">
+    <div class="auth-pills">
+      <span id="pill-ah" class="pill pill-off">AH —</span>
+      <span id="pill-jumbo" class="pill pill-off">Jumbo —</span>
+    </div>
+    <button class="btn btn-outline" onclick="openCredsModal()">⚙ Accounts</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn" data-tab="search" onclick="switchTab('search')">Search</button>
+    <button class="tab-btn" data-tab="history" onclick="switchTab('history')">Purchase History</button>
+  </div>
+
+  <!-- ── Search tab ── -->
+  <div id="tab-search" class="tab-pane">
+
+    <div class="input-card">
+      <label for="shopping-list">Shopping list</label>
+      <textarea id="shopping-list" rows="7" placeholder="melk 2&#10;brood&#10;eieren&#10;kaas 250g&#10;sinaasappelsap 3" autofocus></textarea>
+      <p class="input-hint">One item per line. Optionally add a quantity at the end (e.g. <code>melk 2</code>).</p>
+      <p id="empty-warning" style="display:none;color:#E30613;font-size:0.82rem;margin-top:4px">⚠ Please enter at least one item to compare.</p>
+      <div class="search-row">
+        <span style="font-size:0.82rem;color:#999">Tip: save your AH &amp; Jumbo account to get personalised discounts</span>
+        <button id="search-btn" class="btn btn-primary" onclick="doSearch()">
+          🔍 Compare prices
+        </button>
+      </div>
+    </div>
+
+    <!-- Spinner -->
+    <div id="spinner" class="spinner">
+      <span class="spin-icon">⟳</span>
+      <p style="margin-top:8px">Searching Albert Heijn, Jumbo and Dirk…</p>
+    </div>
+
+    <!-- Results -->
+    <div id="results">
+
+      <div id="recommendations" class="recommendations"></div>
+
+      <div class="items-table-wrap">
+        <h3>Price breakdown per item</h3>
+        <table id="items-table">
+          <tbody id="items-tbody"></tbody>
+        </table>
+        <div class="confirm-row">
+          <span style="font-size:0.82rem;color:#999">Click a recommendation to select where to buy</span>
+          <button id="confirm-btn" class="btn btn-success" onclick="confirmPurchase()" disabled>
+            ✓ Confirm purchase &amp; save to history
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── History tab ── -->
+  <div id="tab-history" class="tab-pane" style="display:none">
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div id="stat-purchases" class="stat-value">—</div>
+        <div class="stat-label">Total purchases</div>
+      </div>
+      <div class="stat-card">
+        <div id="stat-spent" class="stat-value">—</div>
+        <div class="stat-label">Total spent</div>
+      </div>
+      <div class="stat-card">
+        <div id="stat-saved" class="stat-value" style="color:#00AE43">—</div>
+        <div class="stat-label">Total saved (discounts)</div>
+      </div>
+    </div>
+
+    <div class="items-table-wrap">
+      <h3>Purchase history</h3>
+      <div class="history-filters" style="padding:12px 16px 0">
+        <select id="filter-store" onchange="loadHistory()">
+          <option value="">All stores</option>
+          <option value="ah">Albert Heijn</option>
+          <option value="jumbo">Jumbo</option>
+          <option value="dirk">Dirk</option>
+        </select>
+        <input id="filter-name" type="text" placeholder="Search product…" oninput="loadHistory()" />
+      </div>
+      <table style="margin-top:8px">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Store</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Paid</th>
+            <th>Saved</th>
+          </tr>
+        </thead>
+        <tbody id="history-table-body">
+          <tr><td colspan="6" class="no-results">No purchases yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- ── Credentials modal ── -->
+<div id="creds-modal" class="modal-overlay" onclick="if(event.target===this)closeCredsModal()">
+  <div class="modal">
+    <h2>Store accounts</h2>
+    <p style="font-size:0.82rem;color:#666;margin-bottom:16px">
+      Credentials are stored in your macOS Keychain and never sent anywhere except the store's own login page.
+    </p>
+
+    <div class="store-select-group">
+      <button class="store-select-btn" data-store="ah" onclick="setCredStore('ah')">
+        <span class="store-dot dot-ah"></span> Albert Heijn
+      </button>
+      <button class="store-select-btn" data-store="jumbo" onclick="setCredStore('jumbo')">
+        <span class="store-dot dot-jumbo"></span> Jumbo
+      </button>
+    </div>
+
+    <label>Email / username</label>
+    <input id="modal-username" type="email" placeholder="you@example.com" autocomplete="username" />
+
+    <label>Password</label>
+    <input id="modal-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+
+    <div id="modal-status" class="modal-status"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeCredsModal()">Cancel</button>
+      <button class="btn btn-outline" onclick="testLogin()">Test login</button>
+      <button class="btn btn-primary" onclick="saveModalCreds()">Save to Keychain</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
