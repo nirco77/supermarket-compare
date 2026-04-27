@@ -1,6 +1,11 @@
 from __future__ import annotations
 from pathlib import Path
+import os
 import time
+
+# On Vercel (and other read-only filesystems) write to /tmp instead
+_IS_VERCEL = bool(os.environ.get("VERCEL"))
+_STORAGE_BASE = Path("/tmp/supermarket-compare") if _IS_VERCEL else Path.home() / ".config" / "supermarket-compare"
 
 AH_API_BASE = "https://api.ah.nl/mobile/v1"
 AH_AUTH_URL = "https://api.ah.nl/mobile/auth/v1/token"
@@ -10,7 +15,7 @@ AH_CLIENT_SECRET = "vMEu_rSKQj2DXw8d"
 JUMBO_API_BASE = "https://mobileapi.jumbo.com/v17"
 DIRK_BASE_URL = "https://www.dirk.nl"
 
-STORAGE_DIR = Path.home() / ".config" / "supermarket-compare"
+STORAGE_DIR = _STORAGE_BASE
 DB_PATH = STORAGE_DIR / "history.db"
 AH_SESSION_PATH = STORAGE_DIR / "ah_session.json"
 JUMBO_SESSION_PATH = STORAGE_DIR / "jumbo_session.json"
