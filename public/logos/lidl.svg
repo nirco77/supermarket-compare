@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Yellow outer ring -->
+  <circle cx="60" cy="60" r="58" fill="#FED102"/>
+  <!-- Blue inner circle -->
+  <circle cx="60" cy="60" r="44" fill="#0050AA"/>
+  <!-- Red arc cap -->
+  <path d="M 18 52 A 44 44 0 0 1 102 52" fill="#E30613"/>
+  <!-- White Lidl wordmark -->
+  <text x="60" y="76" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="30" fill="#ffffff" text-anchor="middle" letter-spacing="-1">lidl</text>
+</svg>

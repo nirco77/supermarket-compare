@@ -23,9 +23,11 @@ from .services.credential_service import save_credentials, credentials_exist
 from .stores.dirk import close_browser as close_dirk_browser
 from .stores.albert_heijn import close_ah_browser
 from .stores.jumbo import close_jumbo_browser
+from .stores.lidl import close_browser as close_lidl_browser
 from .stores.albert_heijn import AHClient
 from .stores.jumbo import JumboClient
 from .stores.dirk import DirkClient
+from .stores.lidl import LidlClient
 from .database import init_db
 from . import config
 
@@ -44,6 +46,7 @@ async def lifespan(app: FastAPI):
     await close_dirk_browser()
     await close_ah_browser()
     await close_jumbo_browser()
+    await close_lidl_browser()
     logger.info("Playwright browsers closed")
 
 
@@ -155,7 +158,7 @@ async def login(request: LoginRequest):
 
 @app.get("/api/health", response_model=HealthResponse)
 async def health():
-    clients = {"ah": AHClient(), "jumbo": JumboClient(), "dirk": DirkClient()}
+    clients = {"ah": AHClient(), "jumbo": JumboClient(), "dirk": DirkClient(), "lidl": LidlClient()}
     reachability = await asyncio.gather(*[c.is_reachable() for c in clients.values()])
     stores_reachable = dict(zip(clients.keys(), reachability))
 

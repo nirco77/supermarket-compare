@@ -156,7 +156,7 @@ function recCard({ label, store, storeKey, total, savings, best, onclick }) {
 }
 
 function renderItemsTable(result) {
-  const stores = ['ah', 'jumbo', 'dirk'];
+  const stores = ['ah', 'jumbo', 'dirk', 'lidl'];
   const thead = `
     <thead>
       <tr>
@@ -422,11 +422,11 @@ async function testLogin() {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function storeName(key) {
-  return { ah: 'Albert Heijn', jumbo: 'Jumbo', dirk: 'Dirk' }[key] || key;
+  return { ah: 'Albert Heijn', jumbo: 'Jumbo', dirk: 'Dirk', lidl: 'Lidl' }[key] || key;
 }
 
 function storeLogo(key) {
-  const srcs = { ah: '/logos/ah.svg', jumbo: '/logos/jumbo.svg', dirk: '/logos/dirk.svg' };
+  const srcs = { ah: '/logos/ah.svg', jumbo: '/logos/jumbo.svg', dirk: '/logos/dirk.svg', lidl: '/logos/lidl.svg' };
   const src = srcs[key];
   if (!src) return storeName(key);
   return `<img src="${src}" alt="${storeName(key)}" class="store-logo" onerror="this.replaceWith(document.createTextNode('${storeName(key)}'))">`;

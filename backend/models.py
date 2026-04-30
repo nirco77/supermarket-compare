@@ -4,7 +4,7 @@ from pydantic import BaseModel, field_validator, computed_field
 
 
 class StoreProduct(BaseModel):
-    store: Literal["ah", "jumbo", "dirk"]
+    store: Literal["ah", "jumbo", "dirk", "lidl"]
     product_id: str
     name: str
     brand: str | None = None
@@ -37,7 +37,7 @@ class ShoppingListItem(BaseModel):
 
 class SearchRequest(BaseModel):
     items: list[ShoppingListItem]
-    stores: list[str] = ["ah", "jumbo", "dirk"]
+    stores: list[str] = ["ah", "jumbo", "dirk", "lidl"]
 
 
 class BulkSuggestion(BaseModel):

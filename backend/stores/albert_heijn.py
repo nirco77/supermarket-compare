@@ -82,8 +82,8 @@ def _extract_products_from_html(html: str, query: str) -> list[StoreProduct]:
     # Unescape backslash-escaped JSON
     combined = combined.replace('\\"', '"').replace('\\/', '/').replace('\\\\', '\\')
 
-    # Product objects are nested as: "product":{"__typename":"Product","priceV2":{...
-    search_marker = '"product":{"__typename":"Product","priceV2"'
+    # Product objects: "product":{"__typename":"Product", ...may have taxonomyPath before priceV2
+    search_marker = '"product":{"__typename":"Product"'
     pos = 0
     found = 0
 
@@ -187,15 +187,33 @@ def _extract_products_from_html(html: str, query: str) -> list[StoreProduct]:
     return products
 
 
+# Dutch grocery adjectives that should precede their noun in search queries.
+# AH's search is order-sensitive: "halfvolle melk" ranks better than "melk halfvolle".
+_DUTCH_MODIFIERS = {
+    'halfvolle', 'volle', 'magere', 'verse', 'houdbare', 'houdbaar',
+    'gezouten', 'ongezouten', 'biologische', 'biologisch', 'bio',
+    'lactosevrije', 'lactosevrij', 'gerookte', 'gerookt',
+    'jong', 'jonge', 'oud', 'oude', 'belegen',
+}
+
+
 def _normalize_query(query: str) -> str:
-    """Strip size/unit specs that confuse AH search (e.g. 'Chocomel Vol 1 L' → 'Chocomel Vol')."""
+    """Strip size/unit specs and ensure Dutch adjectives precede their noun."""
     cleaned = re.sub(
         r'\b\d+[\s,.]?\d*\s*(liter|ltr|stuks?|pak|fles|blik|rol|cl|ml|kg|gram|gr|g)\b',
         '', query, flags=re.IGNORECASE,
     )
-    # Also strip bare "1 L" / "2 L" / "1L" patterns
     cleaned = re.sub(r'\b\d+\s*[lL]\b', '', cleaned)
     cleaned = re.sub(r'\s{2,}', ' ', cleaned).strip()
+
+    # Reorder: [noun modifier1 modifier2 ...] → [modifier1 modifier2 ... noun]
+    words = cleaned.split()
+    if len(words) >= 2:
+        modifiers = [w for w in words if w.lower() in _DUTCH_MODIFIERS]
+        nouns = [w for w in words if w.lower() not in _DUTCH_MODIFIERS]
+        if modifiers and nouns and words[0].lower() not in _DUTCH_MODIFIERS:
+            cleaned = ' '.join(modifiers + nouns)
+
     return cleaned or query
 
 

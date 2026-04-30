@@ -13,15 +13,17 @@ from ..models import (
 from ..stores.albert_heijn import AHClient
 from ..stores.jumbo import JumboClient
 from ..stores.dirk import DirkClient
+from ..stores.lidl import LidlClient
 from .. import config
 
 logger = logging.getLogger(__name__)
 
-STORES = ["ah", "jumbo", "dirk"]
+STORES = ["ah", "jumbo", "dirk", "lidl"]
 _clients = {
     "ah": AHClient(),
     "jumbo": JumboClient(),
     "dirk": DirkClient(),
+    "lidl": LidlClient(),
 }
 
 
@@ -29,6 +31,8 @@ _clients = {
 # Each entry is (search_pattern_in_name, pattern_to_check_in_query).
 _IMPLICIT_QUALIFIERS = [
     (re.compile(r'houdba(ar|re)', re.I), re.compile(r'houdba(ar|re)', re.I)),
+    (re.compile(r'\blanglekker\b', re.I), re.compile(r'\blanglekker\b', re.I)),  # Campina UHT brand
+    (re.compile(r'\bkoffie\w*', re.I), re.compile(r'\bkoffie\b', re.I)),  # koffiemelk, koffieroom etc.
     (re.compile(r'biologisch[e]?|(?<!\w)bio(?!\w)', re.I), re.compile(r'biologisch|(?<!\w)bio(?!\w)', re.I)),
     (re.compile(r'lactose[-\s]?vrij[e]?', re.I), re.compile(r'lactose[-\s]?vrij', re.I)),
 ]
@@ -71,7 +75,17 @@ def _best_match(query: str, products: list[StoreProduct]) -> StoreProduct | None
 
         scored.append((kw_score + size_bonus - qualifier_penalty, p))
     scored.sort(key=lambda x: (-x[0], x[1].effective_price))
-    return scored[0][1]
+    best_score, best_product = scored[0]
+    # For multi-word queries require majority keyword match (0.5 = only half matched = weak).
+    if len(q_words) > 1 and best_score < 0.6:
+        return None
+    # For single-word queries: AH/Jumbo/Dirk have reliable search engines so trust the top
+    # result even when the product name doesn't contain the category word (e.g. "kaas" →
+    # "Milner Jong belegen"). Lidl's search occasionally returns completely unrelated results,
+    # so require at least one keyword match.
+    if best_score <= 0 and products and products[0].store == "lidl":
+        return None
+    return best_product
 
 
 async def _search_store(store: str, query: str) -> list[StoreProduct]:
