@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supermarket-compare
+  labels:
+    app: supermarket-compare
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supermarket-compare
+  template:
+    metadata:
+      labels:
+        app: supermarket-compare
+    spec:
+      containers:
+        - name: app
+          image: supermarket-compare:latest
+          # Use locally built image — don't pull from registry
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: SUPERMARKET_STORAGE_DIR
+              value: /tmp/supermarket-compare
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supermarket-compare
+spec:
+  type: NodePort
+  selector:
+    app: supermarket-compare
+  ports:
+    - port: 80
+      targetPort: 8000
+      nodePort: 30080

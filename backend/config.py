@@ -3,9 +3,15 @@ from pathlib import Path
 import os
 import time
 
-# On Vercel (and other read-only filesystems) write to /tmp instead
+# Use /tmp when running on Vercel or in a container (SUPERMARKET_STORAGE_DIR env var)
+_custom_dir = os.environ.get("SUPERMARKET_STORAGE_DIR")
 _IS_VERCEL = bool(os.environ.get("VERCEL"))
-_STORAGE_BASE = Path("/tmp/supermarket-compare") if _IS_VERCEL else Path.home() / ".config" / "supermarket-compare"
+if _custom_dir:
+    _STORAGE_BASE = Path(_custom_dir)
+elif _IS_VERCEL:
+    _STORAGE_BASE = Path("/tmp/supermarket-compare")
+else:
+    _STORAGE_BASE = Path.home() / ".config" / "supermarket-compare"
 
 AH_API_BASE = "https://api.ah.nl/mobile/v1"
 AH_AUTH_URL = "https://api.ah.nl/mobile/auth/v1/token"

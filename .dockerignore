@@ -1,0 +1,10 @@
+.venv/
+.git/
+__pycache__/
+*.pyc
+*.pyo
+tests/
+api/
+vercel.json
+*.md
+.gitignore
